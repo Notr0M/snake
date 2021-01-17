@@ -1,10 +1,11 @@
 import React from "react";
+import _ from "lodash";
 
 export default ({ snakes }) => {
   return (
     <>
       {snakes.map((snake, index) => (
-        <div
+        <span
           key={index}
           style={{
             position: "absolute",

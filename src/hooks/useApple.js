@@ -1,9 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 
-import { initialApple } from "./inititalState";
+export default (initApple) => {
+  const [apple, setApple] = useState(initApple);
 
-export default () => {
-  const [positon, setPositon] = React.useState(initialApple);
-
-  return [positon, setPositon];
+  return [apple, setApple];
 };

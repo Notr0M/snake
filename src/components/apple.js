@@ -1,6 +1,7 @@
 import React from "react";
 
-export default ({ position: { x, y } }) => {
+export default React.memo(({ position }) => {
+  console.log("apple");
   return (
     <div
       style={{
@@ -8,10 +9,10 @@ export default ({ position: { x, y } }) => {
         borderRadius: "16px",
         width: "30px",
         height: "30px",
-        left: `${x * 30}px`,
-        top: `${y * -30}px`,
+        left: `${position.x * 30}px`,
+        top: `${position.y * -30}px`,
         backgroundColor: "green",
       }}
     ></div>
   );
-};
+});

@@ -6,6 +6,7 @@ import {
   Icon,
   Message,
   Form,
+  Header,
   Segment,
   Button,
   TransitionablePortal,
@@ -19,20 +20,22 @@ function postUser(user) {
   });
 }
 
-export default React.memo(({ score, setUser, isRunning }) => {
-  const [name, setName] = useState("");
+export default React.memo(({ score, setUser, isRunning, localName }) => {
+  const [name, setName] = useState(localName);
   const [loading, setLoading] = useState(false);
   const [lock, setLock] = useState(false);
   const [err, setErr] = useState({
     error: false,
     msg: "",
   });
-
+  React.useEffect(() => {
+    setName(localName);
+  }, [localName]);
   const submitUser = () => {
     if (checkName(name)) {
       setErr({
         error: true,
-        msg: "The Nickname could not be empty or include space.",
+        msg: "Nickname could not be empty either include space",
       });
       return;
     }
@@ -68,7 +71,7 @@ export default React.memo(({ score, setUser, isRunning }) => {
     if (checkName(nickname)) {
       setErr({
         error: true,
-        msg: "The Nickname could not be empty or include space.",
+        msg: "Nickname could not be empty either include space",
       });
       return;
     }
@@ -79,22 +82,27 @@ export default React.memo(({ score, setUser, isRunning }) => {
     setName(nickname);
   };
 
-  console.log("isRunning ", isRunning);
   return (
     <div>
-      <Label circular attached="top" color="green" size="large">
-        Your Score:
-        <Label.Detail>{score}</Label.Detail>
-      </Label>
-      <h4>You can submit your score here if you wish. </h4>
+      <style>
+        {`
+          #score-submit-input {
+            color: #808080;
+            opacity: ${name ? 0.5 : 1};
+          }
+        `}
+      </style>
+      <Header as="h4">You can submit your score here if you wish. </Header>
 
       <Form onSubmit={submitUser}>
         <div style={{ display: "flex" }}>
           <Form.Input
-            readOnly={isRunning || lock}
+            readOnly={isRunning || lock || name}
             error={err.error}
+            value={name}
             onChange={(e) => changeName(e)}
             placeholder="Nickname"
+            id="score-submit-input"
           />
           <Form.Button
             loading={loading}
@@ -104,28 +112,21 @@ export default React.memo(({ score, setUser, isRunning }) => {
             Submit
           </Form.Button>
         </div>
-        {err && <span style={{ color: "#DC143C" }}>{err.msg}</span>}
+        {err && (
+          <span
+            style={{
+              position: "fixed",
+              left: "40%",
+              top: "25%",
+              color: "#DC143C",
+              textAlign: "right",
+              zIndex: 10,
+            }}
+          >
+            {err.msg}
+          </span>
+        )}
       </Form>
-      {/* <Input
-        icon="user"
-        disabled={lock}
-        value={name}
-        iconPosition="left"
-        placeholder="Nickname"
-        onChange={(e) => {
-          setName(e.target.value);
-        }}
-      />
-      <Button
-        disabled={lock}
-        as="button"
-        onClick={submitUser}
-        attached="right"
-        color="blue"
-        type="submit"
-      >
-        Submit
-      </Button> */}
     </div>
   );
 });

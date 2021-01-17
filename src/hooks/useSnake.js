@@ -15,22 +15,22 @@ function reducer(state, action) {
     return {
       ...state,
       snakes: [...initialSnake],
-      continue: true,
+      status: "running",
       apple: initialApple,
     };
   }
   const snakes = [...state.snakes];
   const apple = { ...state.apple };
   const header = snakes[0];
-  let con = true;
+  let status = "running";
 
   _.forEach(_.tail(Array.from(snakes)), (snake) => {
     if (header.x === snake.x && header.y === snake.y) {
       console.log("opps");
-      con = false;
+      status = "failed";
     }
   });
-  if (con) {
+  if (status === "running") {
     for (let count = snakes.length - 1; count > -1; --count) {
       if (count === 0) {
         snakes[count].x += action.x;
@@ -61,16 +61,14 @@ function reducer(state, action) {
       apple.y = _.random(-9);
     }
   }
-  return { ...state, snakes: snakes, continue: con, apple: apple };
+  return { ...state, snakes: snakes, status: status, apple: apple };
 }
 
-export default () => {
-  const [isRunning, setIsRunning] = React.useState(false);
-  const [reset, setReset] = React.useState(false);
+export default (initSnake, status, setStatus, speed) => {
   const [state, dispath] = React.useReducer(reducer, {
-    snakes: initialSnake,
+    snakes: initSnake,
     apple: initialApple,
-    continue: isRunning,
+    status: status,
   });
 
   const [dir, setDir] = React.useState(RIGHT);
@@ -99,47 +97,52 @@ export default () => {
   // check performance here
   React.useEffect(() => {
     const run = setInterval(() => {
-      if (!state.continue) {
+      if (state.status === "failed") {
         clearInterval(run);
-        setReset(false);
-        setIsRunning(false);
+        setStatus("failed");
+        return;
+      }
+      if (status === "init") {
+        setStatus("running");
+        return;
+      }
+      if (state.status === "paused" || status === "paused") {
+        clearInterval(run);
+        setStatus("paused");
+        return;
+      }
+      if (state.status === "idle" || status === "idle") {
+        clearInterval(run);
+        setStatus("idle");
         return;
       }
       if (prevDir.x === dir.x || prevDir.y === dir.y) {
         dispath(prevDir);
         return;
       }
+
       setPrevDir(dir);
       dispath(dir);
-    }, 40); // 40 - 65 - 100
+    }, speed); // 40 - 65 - 100
 
     return () => clearInterval(run);
   }, [state]);
 
   React.useEffect(() => {
-    console.log("is running");
-    if (isRunning) {
+    console.log(status);
+    if (status === "running") {
       window.addEventListener("keydown", keydownEvent);
       dispath(dir);
     }
-    return () => window.removeEventListener("keydown", keydownEvent);
-  }, [isRunning]);
-
-  React.useEffect(() => {
-    console.log("reset");
-    if (reset) {
+    if (status === "init") {
       window.addEventListener("keydown", keydownEvent);
+
       dispath("init");
       setDir(RIGHT);
     }
+
     return () => window.removeEventListener("keydown", keydownEvent);
-  }, [reset]);
+  }, [status]);
 
-  // React.useEffect(() => {
-  //   console.log("add event");
-  //   console.log("isRunning, ", isRunning);
-  //   window.addEventListener("keydown", keydownEvent);
-  // }, []);
-
-  return [state.snakes, state.apple, state.continue, setIsRunning, setReset];
+  return [state.snakes, state.apple];
 };

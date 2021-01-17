@@ -8,6 +8,6 @@ export { UP, DOWN, LEFT, RIGHT };
 export const initialSnake = [{ x: 1, y: 0 }];
 
 export const initialApple = {
-  x: 3, // 0 -> 19
-  y: -3, // 0 -> -9
+  x: 5, // 0 -> 19
+  y: 0, // 0 -> -9
 };
